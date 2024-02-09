@@ -1,5 +1,8 @@
 const {logService, signService} = require('../services')
 const {isValidPassword, isValidUsername} = require('../constants/index.js')
+const jwt = require('jsonwebtoken') 
+const secretKey= "secretKey";
+
 const loginController = async (req,res) => {
 
     try{
@@ -16,7 +19,9 @@ const loginController = async (req,res) => {
         else{
             const loginData = {email,password};
             const loginServiceOutput = await logService(loginData);
-            console.log("controllerresult", loginServiceOutput);
+            console.log("controllerresult----", loginServiceOutput);
+            
+            // console.log("testing----", name, " ", userID);
             
             if(loginServiceOutput === 'User not found!'){
                 return res.send({
@@ -33,11 +38,22 @@ const loginController = async (req,res) => {
                 });
             }
             else{
-                return res.send({
-                    success: true,
-                    message: "logged In!",
-                    loginServiceOutput
+                const {name, userID}  = loginServiceOutput[0];
+                const user = {userID, name, email};
+                jwt.sign(user, secretKey, {expiresIn: '60s'}, (err, token)=>{
+                    console.log("tokenlogin----",token);
+                    res.cookie('token', token, {httpOnly: true});
+                    return res.send({
+                        success: true,
+                        message: "logged In!",
+                        loginServiceOutput,
+                    });
                 });
+                // return res.send({
+                //     success: true,
+                //     message: "logged In!",
+                //     loginServiceOutput
+                // });
             }
         }
     }
@@ -49,6 +65,35 @@ const loginController = async (req,res) => {
             result: {},
         });
     }
+}
+
+const profileController = async (req,res) => {
+    jwt.verify(req.token, secretKey, (err, authData)=>{
+        console.log("req.token---", req.token);
+        if(err){
+            return res.send({
+                success: false,
+                message: "session expired",
+                authData: {},
+            });
+        }
+        else{
+            if(!authData){
+                console.log("undefined authData");
+                return res.send({
+                    success: false,
+                    message: "session expired",
+                    authData:  {}
+                });
+            }
+            console.log("data sent to frontend");
+            return res.send({
+                success: true,
+                message: "Token verified",
+                authData
+            });
+        }
+    });
 }
 
 const signupController = async (req,res) => {
@@ -120,4 +165,4 @@ const signupController = async (req,res) => {
     }
 }
 
-module.exports = {loginController,signupController}
+module.exports = {loginController,signupController, profileController}

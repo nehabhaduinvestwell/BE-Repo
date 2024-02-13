@@ -16,10 +16,10 @@ app.use(cors({
 }));
 
 app.use(express.json());
-app.use('/', router)
+app.use('/api', router)
 
 app.listen(8001, () => {
-    console.log('listening on port 8002')
+    console.log('listening on port 8001')
 })
 
 Connection.connect((error)=>{

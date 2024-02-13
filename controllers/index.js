@@ -2,6 +2,10 @@ const {logService, signService} = require('../services')
 const {isValidPassword, isValidUsername} = require('../constants/index.js')
 const jwt = require('jsonwebtoken') 
 const secretKey= "secretKey";
+const pdfFolderPath = '/home/nehabhadu/Git/frontend/src/media/pdfs';
+const fs = require('fs');
+const pdfPath = '/home/nehabhadu/Git/frontend/public/pdfs/pdf1.pdf'
+
 
 const loginController = async (req,res) => {
 
@@ -165,4 +169,50 @@ const signupController = async (req,res) => {
     }
 }
 
-module.exports = {loginController,signupController, profileController}
+const policyController = async (req, res) => {
+      
+    try{
+        console.log("folder path",pdfFolderPath);
+        const files = fs.readdirSync(pdfFolderPath);
+        const policies = [];
+        let srNo = 0;
+        files.map(file => {
+            if(file.includes('.pdf')){
+                srNo  += 1;
+                const policy = {
+                    srNo,
+                    file
+                } 
+                policies.push(policy)
+            }
+        })
+        console.log("policies sent");
+        return res.send({
+            success : true,
+            message : "SUCCESS",
+            policies
+        })
+    }catch(err){
+      console.log(err);
+      return res.send({
+        success : false,
+        message : "ERROR",
+        policies: []
+      })
+    }
+}
+
+const pdfController = async(req, res) => {
+    try{
+        console.log("here");
+        res.send({
+            success : "true",
+            message : "pdf path sent",
+            pdfPath
+        }) 
+    }catch(err){
+         console.log(err);
+     }
+}
+
+module.exports = {loginController,signupController, profileController, policyController, pdfController}

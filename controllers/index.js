@@ -4,8 +4,8 @@ const jwt = require('jsonwebtoken')
 const secretKey= "secretKey";
 const pdfFolderPath = '/home/nehabhadu/Git/frontend/src/media/pdfs';
 const fs = require('fs');
-const pdfPath = '/home/nehabhadu/Git/frontend/public/pdfs/pdf1.pdf'
-
+// const pdfPath = '/home/nehabhadu/Git/frontend/public/pdfs/pdf1.pdf'
+const path = require('path');
 
 const loginController = async (req,res) => {
 
@@ -202,17 +202,27 @@ const policyController = async (req, res) => {
     }
 }
 
-const pdfController = async(req, res) => {
-    try{
-        console.log("here");
-        res.send({
-            success : "true",
-            message : "pdf path sent",
-            pdfPath
-        }) 
-    }catch(err){
-         console.log(err);
-     }
-}
+const pdfController = (req, res) => {
+    try {
+      const pdfPath = '/home/nehabhadu/Git/frontend/src/media/pdfs/pdf1.pdf';
+      res.sendFile(path.resolve(pdfPath));
+    } catch (err) {
+      console.error(err);
+      res.json({ error: 'error sending pdf' });
+    }
+};
+
+// const pdfController = async(req, res) => {
+//     try{
+//         console.log("here");
+//         res.send({
+//             success : "true",
+//             message : "pdf path sent",
+//             pdfPath
+//         }) 
+//     }catch(err){
+//          console.log(err);
+//      }
+// }
 
 module.exports = {loginController,signupController, profileController, policyController, pdfController}
